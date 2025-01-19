@@ -25,37 +25,18 @@
         <div class="card-body text-center">
             <h5 class="card-title">Siteye Gitmek İçin Aşağıdaki Butona Tıklayın</h5>
             <p class="card-text">XLS dosyasından bir URL rastgele seçilecek.</p>
-            <button id="redirectButton" class="btn btn-primary">Git</button>
+            <button id="redirectButtonTwo" class="btn btn-secondary">Yeni Sekmede Aç</button>
+            <button id="redirectButton" class="btn btn-primary" disabled>Git</button>
         </div>
     </div>
 </div>
 
-<div class="container mt-5">
-    <div class="card shadow">
-        <div class="card-body text-center">
-            <h5 class="card-title">Siteye Gitmek İçin Aşağıdaki Butona Tıklayın</h5>
-            <p class="card-text">XLS dosyasından bir URL rastgele seçilecek.</p>
-            <button id="redirectButtonTwo" class="btn btn-two">Git</button>
-        </div>
-    </div>
-</div>
-
-<!-- Scripts -->
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-8B1E59V91C"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-8B1E59V91C');
-</script>
 <!-- Scripts -->
 <script>
     let selectedRow = null; // Seçilen rastgele satırı saklamak için değişken
 
-    // redirectButton işlevi
-    document.getElementById('redirectButton').addEventListener('click', function () {
+    // redirectButtonTwo işlevi
+    document.getElementById('redirectButtonTwo').addEventListener('click', function () {
         fetch('urls.xls') // XLS dosyanızın adını ve yolunu belirtin
             .then(response => response.arrayBuffer())
             .then(data => {
@@ -67,8 +48,11 @@
                 const urls = rows.filter(row => row[0] && row[1]); // 1. ve 2. sütun dolu olanları seç
                 if (urls.length > 0) {
                     selectedRow = urls[Math.floor(Math.random() * urls.length)]; // Rastgele bir satır seç
-                    const randomUrl = selectedRow[0]; // 1. sütun
-                    window.location.href = randomUrl; // Yönlendir
+                    const secondColumnUrl = selectedRow[1]; // 2. sütundaki URL
+                    window.open(secondColumnUrl, '_blank'); // Yeni sekmede aç
+
+                    // redirectButton'u etkinleştir
+                    document.getElementById('redirectButton').disabled = false;
                 } else {
                     alert("XLS dosyasından geçerli bir URL bulunamadı!");
                 }
@@ -79,17 +63,16 @@
             });
     });
 
-    // redirectButtonTwo işlevi
-    document.getElementById('redirectButtonTwo').addEventListener('click', function () {
-        if (selectedRow && selectedRow[1]) {
-            const secondColumnUrl = selectedRow[1]; // 2. sütundaki URL
-            window.open(secondColumnUrl, '_blank'); // Yeni sekmede aç
+    // redirectButton işlevi
+    document.getElementById('redirectButton').addEventListener('click', function () {
+        if (selectedRow && selectedRow[0]) {
+            const randomUrl = selectedRow[0]; // 1. sütundaki URL
+            window.location.href = randomUrl; // Yönlendir
         } else {
-            alert("Önce bir satır seçmek için diğer butona tıklayın!");
+            alert("Önce 'Yeni Sekmede Aç' butonuna tıklayın!");
         }
     });
 </script>
 
 </body>
 </html>
-
