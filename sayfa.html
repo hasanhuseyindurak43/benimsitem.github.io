@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İsim Kaydet</title>
+</head>
+<body>
+    <h1>İsim Kaydet</h1>
+    <form id="nameForm">
+        <label for="name">İsim:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Kaydet</button>
+    </form>
+
+    <script>
+        document.getElementById('nameForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Formun gönderilmesini engelle
+
+            const name = document.getElementById('name').value;
+
+            // JSON verisi oluştur
+            const data = {
+                name: name
+            };
+
+            // JSON verisini string'e çevir
+            const jsonData = JSON.stringify(data);
+
+            // JSON dosyasına yazma işlemi (Bu kısım GitHub Pages'te çalışmaz)
+            fetch('https://hasanhuseyindurak43.github.io/benimsitem.github.io/data.json', {
+                method: 'POST', // veya 'PUT'
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Başarılı:', data);
+                alert('İsim başarıyla kaydedildi!');
+            })
+            .catch((error) => {
+                console.error('Hata:', error);
+                alert('İsim kaydedilirken bir hata oluştu.');
+            });
+        });
+    </script>
+</body>
+</html>
