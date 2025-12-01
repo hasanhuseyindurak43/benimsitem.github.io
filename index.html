@@ -1,78 +1,1129 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8B1E59V91C"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-8B1E59V91C');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XLS URL Yönlendirme</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- SheetJS (xlsx) Kütüphanesi -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <title>Posta Sorgulama Sistemi</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .json-init-section, .action-section, .result-section {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #4b6cb7;
+            padding-bottom: 8px;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #4b6cb7;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a559f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #4b6cb7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: modalOpen 0.3s ease-out;
+        }
+        
+        @keyframes modalOpen {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .close-btn:hover {
+            color: #dc3545;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .post-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            width: 150px;
+            color: #495057;
+        }
+        
+        .info-value {
+            flex: 1;
+            color: #212529;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .data-table th {
+            background-color: #4b6cb7;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .file-input-container {
+            border: 2px dashed #4b6cb7;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .file-input-container:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .file-input-label {
+            cursor: pointer;
+            display: block;
+        }
+        
+        .file-input-label span {
+            display: block;
+            margin-top: 10px;
+            color: #4b6cb7;
+            font-weight: 600;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .json-status {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        
+        .json-status.loaded {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .json-status.empty {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .json-info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #4b6cb7;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .json-info-box h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .json-info-box p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+        
+        .json-info-box ul {
+            margin: 10px 0 10px 20px;
+        }
+        
+        .json-info-box li {
+            margin-bottom: 5px;
+        }
+        
+        .json-structure {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .button-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .info-row {
+                flex-direction: column;
+            }
+            
+            .info-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                margin: 20px auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .json-init-section, .action-section, .result-section {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
-<body class="bg-light">
-
-<div class="container mt-5">
-    <div class="card shadow">
-        <div class="card-body text-center">
-            <h5 class="card-title">Siteye Gitmek İçin Aşağıdaki Butona Tıklayın</h5>
-            <p class="card-text">XLS dosyasından bir URL rastgele seçilecek.</p>
-            <button id="redirectButtonTwo" class="btn btn-secondary">Yeni Sekmede Aç</button>
-            <button id="redirectButton" class="btn btn-primary" disabled>Git</button>
+<body>
+    <div class="container">
+        <header>
+            <h1>Posta Sorgulama Sistemi</h1>
+            <p class="subtitle">JSON tabanlı posta kayıt yönetimi</p>
+        </header>
+        
+        <div class="main-content">
+            <!-- 1. Aşama: JSON yükleme/oluşturma bölümü -->
+            <section class="json-init-section" id="jsonInitSection">
+                <h2 class="section-title">1. Aşama: JSON Veri Yükleme</h2>
+                <p>Sistemi kullanmak için bir JSON dosyası yüklemelisiniz. Eğer JSON dosyanız yoksa, boş bir JSON oluşturabilirsiniz.</p>
+                
+                <div class="json-info-box">
+                    <h4>JSON Sistemi Nasıl Çalışır?</h4>
+                    <p><strong>JSON verileri tarayıcınızın hafızasında (localStorage) saklanır.</strong> Fiziksel bir dosya olarak değil!</p>
+                    <p><strong>JSON yapısı şu şekilde olmalıdır:</strong></p>
+                    <div class="json-structure">
+{
+  "postalar": [
+    {
+      "posta": "34000",
+      "posta_key": "ISTANBUL-1",
+      "id": 1,
+      "username": "kullanici_adi",
+      "password": "sifre",
+      "ref_id": 0
+    }
+  ]
+}
+                    </div>
+                    <p><strong>İşlem adımları:</strong></p>
+                    <ul>
+                        <li>JSON dosyasını yükleyin veya boş JSON oluşturun</li>
+                        <li>Veriler tarayıcı hafızasında saklanacak</li>
+                        <li>İstediğiniz zaman JSON'u bilgisayarınıza indirebilirsiniz</li>
+                        <li>İndirdiğiniz JSON'u daha sonra tekrar yükleyebilirsiniz</li>
+                    </ul>
+                </div>
+                
+                <div class="file-input-container">
+                    <label for="fileInput" class="file-input-label">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" fill="#4b6cb7"/>
+                            <path d="M14 2V8H20M16 13H8M16 17H8M10 9H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>JSON dosyasını seçmek için tıklayın</span>
+                    </label>
+                    <input type="file" id="fileInput" accept=".json">
+                </div>
+                
+                <div class="button-container">
+                    <button class="btn btn-secondary" id="createEmptyJson">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Boş JSON Oluştur
+                    </button>
+                </div>
+                
+                <div id="jsonStatus" class="json-status empty">
+                    Henüz JSON yüklenmedi. Lütfen bir JSON dosyası yükleyin veya boş JSON oluşturun.
+                </div>
+            </section>
+            
+            <!-- 2. Aşama: Ana işlem butonları -->
+            <section class="action-section" id="actionSection" style="display: none;">
+                <h2 class="section-title">2. Aşama: İşlem Seçin</h2>
+                <p>JSON verisi başarıyla yüklendi. Aşağıdaki işlemlerden birini seçin:</p>
+                
+                <div class="json-info-box">
+                    <h4>JSON Yönetimi</h4>
+                    <p>Verileriniz tarayıcı hafızasında saklanıyor. İsterseniz JSON'u bilgisayarınıza indirebilirsiniz.</p>
+                    <p><strong>Mevcut kayıt sayısı: <span id="recordCount">0</span></strong></p>
+                </div>
+                
+                <div class="button-container">
+                    <button class="btn btn-primary" id="queryPostButton">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Posta Sorgula
+                    </button>
+                    <button class="btn btn-secondary" id="listEditButton">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12H15M9 16H15M4 6H20M4 10H20M4 14H20M4 18H20" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Listele ve Düzenle
+                    </button>
+                    <button class="btn btn-success" id="downloadJsonButton">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        JSON'u İndir
+                    </button>
+                    <button class="btn btn-danger" id="clearJsonButton">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6H5H21M5 6V20C5 20.5304 5.21071 21.0391 5.58579 21.4142C5.96086 21.7893 6.46957 22 7 22H17C17.5304 22 18.0391 21.7893 18.4142 21.4142C18.7893 21.0391 19 20.5304 19 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        JSON'u Temizle
+                    </button>
+                    <button class="btn btn-info" id="jsonTemplateButton">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12H15M9 16H15M21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        JSON Şablonu İndir
+                    </button>
+                </div>
+            </section>
+            
+            <!-- 3. Aşama: Posta sorgulama bölümü -->
+            <section class="result-section" id="querySection" style="display: none;">
+                <h2 class="section-title">3. Aşama: Posta Sorgula</h2>
+                <div class="input-group">
+                    <label for="postCodeInput">Posta Kodu</label>
+                    <input type="text" id="postCodeInput" placeholder="Posta kodunu girin (örn: 34000)">
+                </div>
+                
+                <div class="button-container">
+                    <button class="btn btn-success" id="searchButton">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Sorgula
+                    </button>
+                    <button class="btn btn-secondary" id="backToMainButton">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Ana Menüye Dön
+                    </button>
+                </div>
+                
+                <div id="queryResult"></div>
+            </section>
+            
+            <!-- 4. Aşama: Listeleme ve düzenleme bölümü -->
+            <section class="result-section" id="listEditSection" style="display: none;">
+                <h2 class="section-title">Posta Kayıtları</h2>
+                
+                <div class="button-container">
+                    <button class="btn btn-success" id="addNewRecordButton">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Yeni Kayıt Ekle
+                    </button>
+                    <button class="btn btn-secondary" id="backToMainButton2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Ana Menüye Dön
+                    </button>
+                </div>
+                
+                <div id="listResult"></div>
+            </section>
+        </div>
+        
+        <footer>
+            <p>© 2023 Posta Sorgulama Sistemi | JSON verileri tarayıcı hafızasında (localStorage) saklanmaktadır.</p>
+        </footer>
+    </div>
+    
+    <!-- 5. Aşama: Posta ekleme/duzenleme modalı -->
+    <div id="postModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Yeni Posta Kaydı Ekle</h3>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            
+            <form id="postForm">
+                <div class="input-group">
+                    <label for="posta">Posta Kodu</label>
+                    <input type="text" id="posta" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="posta_key">Posta Anahtarı</label>
+                    <input type="text" id="posta_key" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="username">Kullanıcı Adı</label>
+                    <input type="text" id="username" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Şifre</label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="ref_id">Referans Kullanıcı</label>
+                    <select id="ref_id">
+                        <option value="0">Referans Yok</option>
+                    </select>
+                </div>
+                
+                <div class="button-container">
+                    <button type="submit" class="btn btn-success">Kaydet</button>
+                    <button type="button" class="btn btn-secondary" id="cancelModal">İptal</button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
 
-<!-- Scripts -->
-<script>
-    let selectedRow = null; // Seçilen rastgele satırı saklamak için değişken
-
-    // redirectButtonTwo işlevi
-    document.getElementById('redirectButtonTwo').addEventListener('click', function () {
-        fetch('urls.xls') // XLS dosyanızın adını ve yolunu belirtin
-            .then(response => response.arrayBuffer())
-            .then(data => {
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[firstSheetName];
-                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-                const urls = rows.filter(row => row[0] && row[1]); // 1. ve 2. sütun dolu olanları seç
-                if (urls.length > 0) {
-                    selectedRow = urls[Math.floor(Math.random() * urls.length)]; // Rastgele bir satır seç
-                    const secondColumnUrl = selectedRow[1]; // 2. sütundaki URL
-                    window.open(secondColumnUrl, '_blank'); // Yeni sekmede aç
-
-                    // redirectButton'u etkinleştir
-                    document.getElementById('redirectButton').disabled = false;
+    <script>
+        // 1. Aşama: JSON veri yönetimi
+        document.addEventListener('DOMContentLoaded', function() {
+            // Uygulama durumu
+            const appState = {
+                jsonData: null,
+                currentPosta: null,
+                editMode: false,
+                editIndex: null
+            };
+            
+            // DOM elementleri
+            const jsonInitSection = document.getElementById('jsonInitSection');
+            const actionSection = document.getElementById('actionSection');
+            const querySection = document.getElementById('querySection');
+            const listEditSection = document.getElementById('listEditSection');
+            const jsonStatus = document.getElementById('jsonStatus');
+            const fileInput = document.getElementById('fileInput');
+            const createEmptyJsonBtn = document.getElementById('createEmptyJson');
+            const queryPostButton = document.getElementById('queryPostButton');
+            const listEditButton = document.getElementById('listEditButton');
+            const searchButton = document.getElementById('searchButton');
+            const postCodeInput = document.getElementById('postCodeInput');
+            const queryResult = document.getElementById('queryResult');
+            const listResult = document.getElementById('listResult');
+            const postModal = document.getElementById('postModal');
+            const closeModal = document.getElementById('closeModal');
+            const cancelModal = document.getElementById('cancelModal');
+            const postForm = document.getElementById('postForm');
+            const modalTitle = document.getElementById('modalTitle');
+            const refIdSelect = document.getElementById('ref_id');
+            const backToMainButton = document.getElementById('backToMainButton');
+            const backToMainButton2 = document.getElementById('backToMainButton2');
+            const downloadJsonButton = document.getElementById('downloadJsonButton');
+            const clearJsonButton = document.getElementById('clearJsonButton');
+            const addNewRecordButton = document.getElementById('addNewRecordButton');
+            const jsonTemplateButton = document.getElementById('jsonTemplateButton');
+            const recordCount = document.getElementById('recordCount');
+            
+            // Sayfa yüklendiğinde localStorage'dan JSON verisini kontrol et
+            checkLocalStorage();
+            
+            // Dosya yükleme işlemi
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type === 'application/json') {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const json = JSON.parse(e.target.result);
+                            if (json && Array.isArray(json.postalar)) {
+                                appState.jsonData = json;
+                                saveToLocalStorage();
+                                updateJsonStatus(true);
+                                showActionSection();
+                                showAlert('JSON dosyası başarıyla yüklendi!', 'success');
+                            } else {
+                                throw new Error('Geçersiz JSON formatı');
+                            }
+                        } catch (error) {
+                            showAlert('JSON dosyası okunamadı. Lütfen geçerli bir JSON dosyası seçin.', 'danger');
+                        }
+                    };
+                    reader.readAsText(file);
                 } else {
-                    alert("XLS dosyasından geçerli bir URL bulunamadı!");
+                    showAlert('Lütfen geçerli bir JSON dosyası seçin.', 'danger');
                 }
-            })
-            .catch(error => {
-                console.error('Hata:', error);
-                alert("XLS dosyası yüklenirken bir hata oluştu.");
             });
-    });
-
-    // redirectButton işlevi
-    document.getElementById('redirectButton').addEventListener('click', function () {
-        if (selectedRow && selectedRow[0]) {
-            const randomUrl = selectedRow[0]; // 1. sütundaki URL
-            window.location.href = randomUrl; // Yönlendir
-        } else {
-            alert("Önce 'Yeni Sekmede Aç' butonuna tıklayın!");
-        }
-    });
-</script>
-
+            
+            // Boş JSON oluştur
+            createEmptyJsonBtn.addEventListener('click', function() {
+                appState.jsonData = {
+                    postalar: []
+                };
+                saveToLocalStorage();
+                updateJsonStatus(true);
+                showActionSection();
+                showAlert('Boş JSON başarıyla oluşturuldu! Şimdi yeni kayıtlar ekleyebilirsiniz.', 'success');
+            });
+            
+            // JSON şablonu indir
+            jsonTemplateButton.addEventListener('click', function() {
+                const templateData = {
+                    postalar: [
+                        {
+                            posta: "34000",
+                            posta_key: "ISTANBUL-1",
+                            id: 1,
+                            username: "ornek_kullanici",
+                            password: "ornek_sifre",
+                            ref_id: 0
+                        }
+                    ]
+                };
+                
+                downloadFile(templateData, 'posta_json_sablonu.json', 'JSON şablonu başarıyla indirildi!');
+            });
+            
+            // 2. Aşama: İşlem butonları
+            queryPostButton.addEventListener('click', function() {
+                showQuerySection();
+            });
+            
+            listEditButton.addEventListener('click', function() {
+                showListEditSection();
+            });
+            
+            // JSON'u indir butonu
+            downloadJsonButton.addEventListener('click', function() {
+                if (!appState.jsonData || appState.jsonData.postalar.length === 0) {
+                    showAlert('İndirilecek JSON verisi bulunamadı.', 'warning');
+                    return;
+                }
+                
+                downloadFile(appState.jsonData, 'posta_verileri.json', 'JSON dosyası başarıyla indirildi!');
+            });
+            
+            // JSON'u temizle butonu
+            clearJsonButton.addEventListener('click', function() {
+                if (confirm('Tüm JSON verilerini temizlemek istediğinize emin misiniz? Bu işlem geri alınamaz.')) {
+                    localStorage.removeItem('postaJsonData');
+                    appState.jsonData = null;
+                    updateJsonStatus(false);
+                    jsonInitSection.style.display = 'block';
+                    actionSection.style.display = 'none';
+                    showAlert('JSON verileri temizlendi. Lütfen yeni bir JSON yükleyin veya boş JSON oluşturun.', 'success');
+                }
+            });
+            
+            // Yeni kayıt ekle butonu
+            addNewRecordButton.addEventListener('click', function() {
+                appState.editMode = false;
+                appState.editIndex = null;
+                appState.currentPosta = '';
+                document.getElementById('posta').value = '';
+                document.getElementById('posta_key').value = '';
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('ref_id').value = 0;
+                modalTitle.textContent = 'Yeni Posta Kaydı Ekle';
+                populateRefIdSelect();
+                openPostModal();
+            });
+            
+            // 3. Aşama: Posta sorgulama
+            searchButton.addEventListener('click', function() {
+                const postCode = postCodeInput.value.trim();
+                if (!postCode) {
+                    showAlert('Lütfen bir posta kodu girin.', 'warning');
+                    return;
+                }
+                
+                // 4. Aşama: JSON içinde posta kodunu ara
+                const foundPost = appState.jsonData.postalar.find(post => post.posta === postCode);
+                
+                if (foundPost) {
+                    // Posta bulundu, bilgileri göster
+                    displayPostInfo(foundPost);
+                } else {
+                    // 5. Aşama: Posta bulunamadı, formu göster
+                    appState.currentPosta = postCode;
+                    appState.editMode = false;
+                    openPostModal();
+                }
+            });
+            
+            // Geri dön butonları
+            backToMainButton.addEventListener('click', showActionSection);
+            backToMainButton2.addEventListener('click', showActionSection);
+            
+            // Modal işlemleri
+            closeModal.addEventListener('click', closePostModal);
+            cancelModal.addEventListener('click', closePostModal);
+            
+            // Form gönderimi
+            postForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const postData = {
+                    posta: document.getElementById('posta').value,
+                    posta_key: document.getElementById('posta_key').value,
+                    id: appState.editMode ? appState.jsonData.postalar[appState.editIndex].id : generateNewId(),
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value,
+                    ref_id: parseInt(document.getElementById('ref_id').value)
+                };
+                
+                if (appState.editMode) {
+                    // Düzenleme modunda
+                    appState.jsonData.postalar[appState.editIndex] = postData;
+                    showAlert('Posta kaydı başarıyla güncellendi!', 'success');
+                } else {
+                    // Yeni kayıt ekleme
+                    appState.jsonData.postalar.push(postData);
+                    showAlert('Yeni posta kaydı başarıyla eklendi!', 'success');
+                }
+                
+                saveToLocalStorage();
+                closePostModal();
+                
+                // Eğer sorgulama ekranındaysak, yeni eklenen kaydı göster
+                if (querySection.style.display !== 'none') {
+                    displayPostInfo(postData);
+                } else if (listEditSection.style.display !== 'none') {
+                    showListEditSection();
+                }
+            });
+            
+            // Yardımcı fonksiyonlar
+            function checkLocalStorage() {
+                const savedJson = localStorage.getItem('postaJsonData');
+                if (savedJson) {
+                    try {
+                        appState.jsonData = JSON.parse(savedJson);
+                        updateJsonStatus(true);
+                        showActionSection();
+                    } catch (error) {
+                        console.error('LocalStorage verisi okunamadı:', error);
+                    }
+                }
+            }
+            
+            function saveToLocalStorage() {
+                localStorage.setItem('postaJsonData', JSON.stringify(appState.jsonData));
+                updateRecordCount();
+            }
+            
+            function updateJsonStatus(loaded) {
+                if (loaded && appState.jsonData) {
+                    jsonStatus.textContent = `JSON yüklendi. Toplam ${appState.jsonData.postalar.length} posta kaydı bulunuyor. (Tarayıcı hafızasında saklanıyor)`;
+                    jsonStatus.className = 'json-status loaded';
+                } else {
+                    jsonStatus.textContent = 'Henüz JSON yüklenmedi. Lütfen bir JSON dosyası yükleyin veya boş JSON oluşturun.';
+                    jsonStatus.className = 'json-status empty';
+                }
+            }
+            
+            function updateRecordCount() {
+                if (appState.jsonData) {
+                    recordCount.textContent = appState.jsonData.postalar.length;
+                }
+            }
+            
+            function showActionSection() {
+                jsonInitSection.style.display = 'none';
+                querySection.style.display = 'none';
+                listEditSection.style.display = 'none';
+                actionSection.style.display = 'block';
+                updateRecordCount();
+            }
+            
+            function showQuerySection() {
+                jsonInitSection.style.display = 'none';
+                actionSection.style.display = 'none';
+                listEditSection.style.display = 'none';
+                querySection.style.display = 'block';
+                postCodeInput.value = '';
+                queryResult.innerHTML = '';
+            }
+            
+            function showListEditSection() {
+                jsonInitSection.style.display = 'none';
+                actionSection.style.display = 'none';
+                querySection.style.display = 'none';
+                listEditSection.style.display = 'block';
+                
+                // Tabloyu oluştur
+                renderPostTable();
+            }
+            
+            function renderPostTable() {
+                if (!appState.jsonData || appState.jsonData.postalar.length === 0) {
+                    listResult.innerHTML = '<div class="alert alert-warning">Henüz posta kaydı bulunmuyor. Yeni kayıt eklemek için "Yeni Kayıt Ekle" butonunu kullanın.</div>';
+                    return;
+                }
+                
+                let tableHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Posta Kodu</th>
+                                <th>Posta Anahtarı</th>
+                                <th>Kullanıcı Adı</th>
+                                <th>Referans ID</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                appState.jsonData.postalar.forEach((post, index) => {
+                    const refUser = post.ref_id > 0 ? 
+                        appState.jsonData.postalar.find(p => p.id === post.ref_id) : 
+                        null;
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${post.id}</td>
+                            <td>${post.posta}</td>
+                            <td>${post.posta_key}</td>
+                            <td>${post.username}</td>
+                            <td>${post.ref_id > 0 ? `${post.ref_id} (${refUser ? refUser.username : 'Bulunamadı'})` : 'Yok'}</td>
+                            <td>
+                                <button class="btn btn-primary" onclick="editPost(${index})" style="padding: 6px 12px; margin-right: 5px;">Düzenle</button>
+                                <button class="btn btn-danger" onclick="deletePost(${index})" style="padding: 6px 12px;">Sil</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                        </tbody>
+                    </table>
+                    <div class="alert alert-info" style="margin-top: 20px;">
+                        <strong>Toplam ${appState.jsonData.postalar.length} kayıt bulunuyor.</strong> 
+                        JSON'u bilgisayarınıza kaydetmek için "JSON'u İndir" butonunu kullanın.
+                    </div>
+                `;
+                
+                listResult.innerHTML = tableHTML;
+            }
+            
+            // Dosya indirme fonksiyonu
+            function downloadFile(data, filename, successMessage) {
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const downloadLink = document.createElement('a');
+                downloadLink.href = url;
+                downloadLink.download = filename;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                URL.revokeObjectURL(url);
+                
+                showAlert(successMessage, 'success');
+            }
+            
+            // Global fonksiyonlar (tablo düzenleme/silme butonları için)
+            window.editPost = function(index) {
+                const post = appState.jsonData.postalar[index];
+                appState.editMode = true;
+                appState.editIndex = index;
+                
+                document.getElementById('posta').value = post.posta;
+                document.getElementById('posta_key').value = post.posta_key;
+                document.getElementById('username').value = post.username;
+                document.getElementById('password').value = post.password;
+                document.getElementById('ref_id').value = post.ref_id;
+                
+                modalTitle.textContent = 'Posta Kaydını Düzenle';
+                populateRefIdSelect(post.id);
+                openPostModal();
+            };
+            
+            window.deletePost = function(index) {
+                if (confirm('Bu posta kaydını silmek istediğinize emin misiniz?')) {
+                    appState.jsonData.postalar.splice(index, 1);
+                    saveToLocalStorage();
+                    showAlert('Posta kaydı başarıyla silindi!', 'success');
+                    renderPostTable();
+                }
+            };
+            
+            function displayPostInfo(post) {
+                const refUser = post.ref_id > 0 ? 
+                    appState.jsonData.postalar.find(p => p.id === post.ref_id) : 
+                    null;
+                
+                let html = `
+                    <div class="post-info">
+                        <h3>Posta Bilgileri</h3>
+                        <div class="info-row">
+                            <div class="info-label">Posta Kodu:</div>
+                            <div class="info-value">${post.posta}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Posta Anahtarı:</div>
+                            <div class="info-value">${post.posta_key}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Kullanıcı Adı:</div>
+                            <div class="info-value">${post.username}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Şifre:</div>
+                            <div class="info-value">${'*'.repeat(post.password.length)}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Kayıt ID:</div>
+                            <div class="info-value">${post.id}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Referans Kullanıcı:</div>
+                            <div class="info-value">${post.ref_id > 0 ? `${post.ref_id} (${refUser ? refUser.username : 'Bulunamadı'})` : 'Yok'}</div>
+                        </div>
+                    </div>
+                    <div class="button-container" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="editPost(${appState.jsonData.postalar.findIndex(p => p.id === post.id)})">
+                            Bu Kaydı Düzenle
+                        </button>
+                    </div>
+                `;
+                
+                queryResult.innerHTML = html;
+            }
+            
+            function openPostModal() {
+                // Form alanlarını temizle (düzenleme modunda değilse)
+                if (!appState.editMode && appState.currentPosta) {
+                    document.getElementById('posta').value = appState.currentPosta;
+                }
+                
+                // Referans ID select'ini doldur
+                populateRefIdSelect(appState.editMode ? appState.jsonData.postalar[appState.editIndex].id : null);
+                
+                postModal.style.display = 'block';
+            }
+            
+            function closePostModal() {
+                postModal.style.display = 'none';
+                appState.editMode = false;
+                appState.editIndex = null;
+                appState.currentPosta = null;
+            }
+            
+            function populateRefIdSelect(excludeId = null) {
+                // Select'i temizle
+                refIdSelect.innerHTML = '<option value="0">Referans Yok</option>';
+                
+                if (!appState.jsonData || appState.jsonData.postalar.length === 0) {
+                    return;
+                }
+                
+                // Tüm kullanıcıları listele (mevcut kullanıcı hariç)
+                appState.jsonData.postalar.forEach(post => {
+                    if (!excludeId || post.id !== excludeId) {
+                        const option = document.createElement('option');
+                        option.value = post.id;
+                        option.textContent = `${post.username} (ID: ${post.id})`;
+                        refIdSelect.appendChild(option);
+                    }
+                });
+            }
+            
+            function generateNewId() {
+                if (!appState.jsonData || appState.jsonData.postalar.length === 0) {
+                    return 1;
+                }
+                
+                const maxId = Math.max(...appState.jsonData.postalar.map(post => post.id));
+                return maxId + 1;
+            }
+            
+            function showAlert(message, type) {
+                // Mevcut alert'leri temizle
+                const existingAlerts = document.querySelectorAll('.global-alert');
+                existingAlerts.forEach(alert => alert.remove());
+                
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} global-alert`;
+                alertDiv.textContent = message;
+                
+                // Alert'i sayfanın üst kısmına ekle
+                document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.main-content'));
+                
+                // 5 saniye sonra alert'i kaldır
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+            
+            // Modal dışına tıklanınca kapat
+            window.addEventListener('click', function(e) {
+                if (e.target === postModal) {
+                    closePostModal();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
