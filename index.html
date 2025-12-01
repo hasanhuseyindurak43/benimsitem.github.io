@@ -148,7 +148,7 @@
             color: #495057;
         }
         
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px;
             border: 1px solid #ced4da;
@@ -157,7 +157,13 @@
             transition: border 0.3s;
         }
         
-        input:focus, select:focus {
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        
+        input:focus, select:focus, textarea:focus {
             border-color: #4b6cb7;
             outline: none;
             box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
@@ -379,6 +385,37 @@
             overflow-x: auto;
         }
         
+        .cookie-info-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .cookie-info-box h4 {
+            margin-top: 0;
+            color: #856404;
+        }
+        
+        .cookie-info-box p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+            color: #856404;
+        }
+        
+        .cookie-example {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            color: #495057;
+        }
+        
         footer {
             text-align: center;
             margin-top: 40px;
@@ -459,7 +496,8 @@
       "id": 1,
       "username": "kullanici_adi",
       "password": "sifre",
-      "ref_id": 0
+      "ref_id": 0,
+      "cookie": {}
     }
   ]
 }
@@ -633,9 +671,31 @@
                     </select>
                 </div>
                 
+                <div class="cookie-info-box">
+                    <h4>Çerez (Cookie) Bilgisi</h4>
+                    <p>Çerez bilgisini JSON formatında girin. Bu bilgi JSON dosyasındaki "cookie" alanına kaydedilecektir.</p>
+                    <div class="cookie-example">
+{
+  "session_id": "abc123",
+  "theme": "dark",
+  "language": "tr",
+  "preferences": {
+    "notifications": true,
+    "auto_save": false
+  }
+}
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="cookie_data">Çerez Verisi (JSON formatında)</label>
+                    <textarea id="cookie_data" placeholder='{"session_id": "abc123", "theme": "dark"}'></textarea>
+                </div>
+                
                 <div class="button-container">
                     <button type="submit" class="btn btn-success">Kaydet</button>
                     <button type="button" class="btn btn-secondary" id="cancelModal">İptal</button>
+                    <button type="button" class="btn btn-info" id="clearCookieButton">Çerezi Temizle</button>
                 </div>
             </form>
         </div>
@@ -679,6 +739,8 @@
             const addNewRecordButton = document.getElementById('addNewRecordButton');
             const jsonTemplateButton = document.getElementById('jsonTemplateButton');
             const recordCount = document.getElementById('recordCount');
+            const cookieDataField = document.getElementById('cookie_data');
+            const clearCookieButton = document.getElementById('clearCookieButton');
             
             // Sayfa yüklendiğinde localStorage'dan JSON verisini kontrol et
             checkLocalStorage();
@@ -692,6 +754,14 @@
                         try {
                             const json = JSON.parse(e.target.result);
                             if (json && Array.isArray(json.postalar)) {
+                                // Eski JSON'lar için cookie alanını kontrol et, yoksa ekle
+                                json.postalar = json.postalar.map(post => {
+                                    if (!post.hasOwnProperty('cookie')) {
+                                        post.cookie = {};
+                                    }
+                                    return post;
+                                });
+                                
                                 appState.jsonData = json;
                                 saveToLocalStorage();
                                 updateJsonStatus(true);
@@ -731,12 +801,23 @@
                             id: 1,
                             username: "ornek_kullanici",
                             password: "ornek_sifre",
-                            ref_id: 0
+                            ref_id: 0,
+                            cookie: {
+                                "session_id": "default_session",
+                                "theme": "light",
+                                "language": "tr"
+                            }
                         }
                     ]
                 };
                 
                 downloadFile(templateData, 'posta_json_sablonu.json', 'JSON şablonu başarıyla indirildi!');
+            });
+            
+            // Çerez temizle butonu
+            clearCookieButton.addEventListener('click', function() {
+                cookieDataField.value = '{}';
+                showAlert('Çerez alanı temizlendi!', 'info');
             });
             
             // 2. Aşama: İşlem butonları
@@ -775,11 +856,7 @@
                 appState.editMode = false;
                 appState.editIndex = null;
                 appState.currentPosta = '';
-                document.getElementById('posta').value = '';
-                document.getElementById('posta_key').value = '';
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                document.getElementById('ref_id').value = 0;
+                clearFormFields();
                 modalTitle.textContent = 'Yeni Posta Kaydı Ekle';
                 populateRefIdSelect();
                 openPostModal();
@@ -803,6 +880,10 @@
                     // 5. Aşama: Posta bulunamadı, formu göster
                     appState.currentPosta = postCode;
                     appState.editMode = false;
+                    clearFormFields();
+                    document.getElementById('posta').value = postCode;
+                    modalTitle.textContent = 'Yeni Posta Kaydı Ekle';
+                    populateRefIdSelect();
                     openPostModal();
                 }
             });
@@ -819,13 +900,27 @@
             postForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                // Cookie verisini JSON olarak parse et
+                let cookieParsed = {};
+                const cookieInput = cookieDataField.value.trim();
+                
+                if (cookieInput) {
+                    try {
+                        cookieParsed = JSON.parse(cookieInput);
+                    } catch (error) {
+                        showAlert('Çerez verisi geçerli bir JSON formatında değil! Lütfen düzeltin.', 'danger');
+                        return;
+                    }
+                }
+                
                 const postData = {
                     posta: document.getElementById('posta').value,
                     posta_key: document.getElementById('posta_key').value,
                     id: appState.editMode ? appState.jsonData.postalar[appState.editIndex].id : generateNewId(),
                     username: document.getElementById('username').value,
                     password: document.getElementById('password').value,
-                    ref_id: parseInt(document.getElementById('ref_id').value)
+                    ref_id: parseInt(document.getElementById('ref_id').value),
+                    cookie: cookieParsed
                 };
                 
                 if (appState.editMode) {
@@ -854,7 +949,17 @@
                 const savedJson = localStorage.getItem('postaJsonData');
                 if (savedJson) {
                     try {
-                        appState.jsonData = JSON.parse(savedJson);
+                        const parsedData = JSON.parse(savedJson);
+                        // Eski kayıtlar için cookie alanını kontrol et
+                        if (parsedData.postalar) {
+                            parsedData.postalar = parsedData.postalar.map(post => {
+                                if (!post.hasOwnProperty('cookie')) {
+                                    post.cookie = {};
+                                }
+                                return post;
+                            });
+                        }
+                        appState.jsonData = parsedData;
                         updateJsonStatus(true);
                         showActionSection();
                     } catch (error) {
@@ -926,6 +1031,7 @@
                                 <th>Posta Anahtarı</th>
                                 <th>Kullanıcı Adı</th>
                                 <th>Referans ID</th>
+                                <th>Çerez</th>
                                 <th>İşlemler</th>
                             </tr>
                         </thead>
@@ -937,6 +1043,11 @@
                         appState.jsonData.postalar.find(p => p.id === post.ref_id) : 
                         null;
                     
+                    // Cookie bilgisini kısaltarak göster
+                    const cookieInfo = post.cookie && Object.keys(post.cookie).length > 0 ? 
+                        `<span title="${JSON.stringify(post.cookie)}">✓ Var</span>` : 
+                        'Yok';
+                    
                     tableHTML += `
                         <tr>
                             <td>${post.id}</td>
@@ -944,6 +1055,7 @@
                             <td>${post.posta_key}</td>
                             <td>${post.username}</td>
                             <td>${post.ref_id > 0 ? `${post.ref_id} (${refUser ? refUser.username : 'Bulunamadı'})` : 'Yok'}</td>
+                            <td>${cookieInfo}</td>
                             <td>
                                 <button class="btn btn-primary" onclick="editPost(${index})" style="padding: 6px 12px; margin-right: 5px;">Düzenle</button>
                                 <button class="btn btn-danger" onclick="deletePost(${index})" style="padding: 6px 12px;">Sil</button>
@@ -962,6 +1074,16 @@
                 `;
                 
                 listResult.innerHTML = tableHTML;
+            }
+            
+            // Form alanlarını temizleme fonksiyonu
+            function clearFormFields() {
+                document.getElementById('posta').value = '';
+                document.getElementById('posta_key').value = '';
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('ref_id').value = 0;
+                cookieDataField.value = '';
             }
             
             // Dosya indirme fonksiyonu
@@ -993,6 +1115,13 @@
                 document.getElementById('password').value = post.password;
                 document.getElementById('ref_id').value = post.ref_id;
                 
+                // Cookie verisini göster (eğer varsa)
+                if (post.cookie && Object.keys(post.cookie).length > 0) {
+                    cookieDataField.value = JSON.stringify(post.cookie, null, 2);
+                } else {
+                    cookieDataField.value = '';
+                }
+                
                 modalTitle.textContent = 'Posta Kaydını Düzenle';
                 populateRefIdSelect(post.id);
                 openPostModal();
@@ -1011,6 +1140,16 @@
                 const refUser = post.ref_id > 0 ? 
                     appState.jsonData.postalar.find(p => p.id === post.ref_id) : 
                     null;
+                
+                let cookieInfo = '';
+                if (post.cookie && Object.keys(post.cookie).length > 0) {
+                    cookieInfo = `
+                        <div class="info-row">
+                            <div class="info-label">Çerez Verisi:</div>
+                            <div class="info-value"><pre style="margin: 0; background: #f8f9fa; padding: 10px; border-radius: 4px; overflow: auto; max-height: 150px;">${JSON.stringify(post.cookie, null, 2)}</pre></div>
+                        </div>
+                    `;
+                }
                 
                 let html = `
                     <div class="post-info">
@@ -1039,6 +1178,7 @@
                             <div class="info-label">Referans Kullanıcı:</div>
                             <div class="info-value">${post.ref_id > 0 ? `${post.ref_id} (${refUser ? refUser.username : 'Bulunamadı'})` : 'Yok'}</div>
                         </div>
+                        ${cookieInfo}
                     </div>
                     <div class="button-container" style="margin-top: 20px;">
                         <button class="btn btn-primary" onclick="editPost(${appState.jsonData.postalar.findIndex(p => p.id === post.id)})">
@@ -1051,14 +1191,6 @@
             }
             
             function openPostModal() {
-                // Form alanlarını temizle (düzenleme modunda değilse)
-                if (!appState.editMode && appState.currentPosta) {
-                    document.getElementById('posta').value = appState.currentPosta;
-                }
-                
-                // Referans ID select'ini doldur
-                populateRefIdSelect(appState.editMode ? appState.jsonData.postalar[appState.editIndex].id : null);
-                
                 postModal.style.display = 'block';
             }
             
@@ -1067,6 +1199,8 @@
                 appState.editMode = false;
                 appState.editIndex = null;
                 appState.currentPosta = null;
+                // Modal kapanırken formu temizle
+                clearFormFields();
             }
             
             function populateRefIdSelect(excludeId = null) {
