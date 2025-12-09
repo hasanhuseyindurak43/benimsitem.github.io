@@ -1,19 +1,17 @@
 /* style.css */
-
-/* Genel Sayfa Stilleri */
 body {
-    padding-top: 70px; /* Sabit üst bar için boşluk */
-    padding-bottom: 70px; /* Sabit alt menü için boşluk */
-    background-color: #121212; /* Koyu tema arka planı */
-    color: #ffffff; /* Metin rengi */
+    padding-top: 70px;
+    padding-bottom: 70px;
+    background-color: #121212;
+    color: #ffffff;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 .main-content {
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* İçeriği üste hizalar */
-    min-height: calc(100vh - 140px); /* Görünüm yüksekliği */
+    align-items: flex-start;
+    min-height: calc(100vh - 140px);
 }
 
 .page-content {
@@ -22,7 +20,7 @@ body {
     padding: 20px;
 }
 
-/* Tıklama Dairesi */
+/* Tıklama Dairesi (Artık Reklam Butonu) */
 .click-circle {
     width: 200px;
     height: 200px;
@@ -34,23 +32,30 @@ body {
     cursor: pointer;
     box-shadow: 5px 5px 15px #0a0a0a, -5px -5px 15px #2a2a2a;
     transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
-    user-select: none; /* Metin seçimini engelle */
-    margin: 40px auto; /* Üstten ve alttan otomatik boşluk */
+    user-select: none;
+    margin: 40px auto;
 }
 
-/* Dairenin içine tıklandığında ki efekt */
 .click-circle:active {
     transform: scale(0.95);
     box-shadow: inset 5px 5px 10px #0a0a0a, inset -5px -5px 10px #2a2a2a;
 }
 
-/* --- YENİ EKLENEN / DEĞİŞTİRİLEN KISIM --- */
-/* Dairenin içindeki sayının stilini belirler */
-#click-count {
+/* Dairenin devre dışı olduğu durum */
+.click-circle.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background: linear-gradient(145deg, #1f1f1f, #151515);
+}
+
+/* --- GÜNCELLENEN KISIM --- */
+/* Dairenin içindeki metnin stilini belirler */
+#ad-button-text {
     font-size: 20pt; /* İstediğiniz yazı boyutu */
     font-weight: bold;
-    color: #00ff88; /* Sayının rengi */
-    line-height: 1; /* Dikey hizalama için */
+    color: #00ff88;
+    line-height: 1;
+    text-align: center;
 }
 /* --- BİTİŞ --- */
 
@@ -62,7 +67,6 @@ body {
     color: #ccc;
 }
 
-/* Alt Menü Linkleri */
 .navbar .nav-link {
     display: flex;
     flex-direction: column;
@@ -77,5 +81,5 @@ body {
 }
 
 .navbar .nav-link.active {
-    color: #00ff88 !important; /* Aktif sayfa rengi */
+    color: #00ff88 !important;
 }
