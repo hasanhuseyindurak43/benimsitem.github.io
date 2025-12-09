@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CREDIT_TO_USDT_RATE = 0.00000001;
     const MIN_REWARD_CREDITS = 1;
     const MAX_REWARD_CREDITS = 3;
-    const ADMIN_USERNAME = '@Hasan199243'; // Admin kullanıcısı
+    const ADMIN_USERNAME = 'Hasan199243'; // HATA DÜZELTİLDİ: @ işareti kaldırıldı
 
     let appData = {};
     let userData = {};
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const homePage = document.getElementById('home-page');
     const walletPage = document.getElementById('wallet-page');
     const paymentPage = document.getElementById('payment-page');
-    const adminPage = document.getElementById('admin-page'); // Yeni
+    const adminPage = document.getElementById('admin-page');
 
     const adButton = document.getElementById('ad-button');
     const adButtonTextSpan = document.getElementById('ad-button-text');
@@ -32,12 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const paymentUsdtAddressSpan = document.getElementById('payment-usdt-address');
     const userBalanceSpan = document.getElementById('user-balance');
-    const withdrawAmountInput = document.getElementById('withdraw-amount'); // Yeni
-    const withdrawButton = document.getElementById('withdraw-button'); // Yeni
-    const withdrawAlertDiv = document.getElementById('withdraw-alert'); // Yeni
+    const withdrawAmountInput = document.getElementById('withdraw-amount');
+    const withdrawButton = document.getElementById('withdraw-button');
+    const withdrawAlertDiv = document.getElementById('withdraw-alert');
 
-    const adminMenuLink = document.getElementById('admin-menu-link'); // Yeni
-    const adminRequestsContainer = document.getElementById('admin-requests-container'); // Yeni
+    const adminMenuLink = document.getElementById('admin-menu-link');
+    const adminRequestsContainer = document.getElementById('admin-requests-container');
 
     const menuLinks = document.querySelectorAll('.nav-link[data-page]');
 
@@ -133,12 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- YENİ: ÇEKİM TALEBİ FONKSİYONU ---
     function handleWithdrawRequest() {
         const amount = parseFloat(withdrawAmountInput.value);
         const currentUsdtBalance = userData.credit_balance * CREDIT_TO_USDT_RATE;
         
-        // Uyarıyı gizle
         withdrawAlertDiv.style.display = 'none';
         withdrawAlertDiv.className = 'alert';
 
@@ -163,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Talebi oluştur
         const requestId = Date.now().toString();
         const request = {
             id: requestId,
@@ -175,14 +172,11 @@ document.addEventListener('DOMContentLoaded', () => {
             status: 'pending'
         };
 
-        // Kullanıcı bakiyesinden düş
         userData.credit_balance -= (amount / CREDIT_TO_USDT_RATE);
 
-        // Talebi veriye ekle
         if (!appData.withdrawalRequests) appData.withdrawalRequests = {};
         appData.withdrawalRequests[requestId] = request;
 
-        // Kaydet ve arayüzü güncelle
         saveAppData();
         updateUI();
         
@@ -196,9 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
         withdrawAlertDiv.style.display = 'block';
     }
 
-    // --- YENİ: ADMIN PANELİ FONKSİYONU ---
     function renderAdminPanel() {
-        adminRequestsContainer.innerHTML = ''; // Önceki talepleri temizle
+        adminRequestsContainer.innerHTML = '';
         const requests = appData.withdrawalRequests || {};
 
         if (Object.keys(requests).length === 0) {
@@ -222,18 +215,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Global fonksiyon
     window.deleteRequest = function(requestId) {
         if (confirm('Bu talebi silmek istediğinizden emin misiniz?')) {
             delete appData.withdrawalRequests[requestId];
             saveAppData();
-            renderAdminPanel(); // Paneli yenile
+            renderAdminPanel();
             tg.showAlert('Talep başarıyla silindi.');
         }
     }
 
-
-    // --- OLAY DİNLEYİCİLERİ (EVENT LISTENERS) ---
 
     function setupEventListeners() {
         adButton.addEventListener('click', () => {
@@ -258,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // YENİ: Çekim Butonu
         withdrawButton.addEventListener('click', handleWithdrawRequest);
 
         menuLinks.forEach(link => {
@@ -270,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.page-content').forEach(page => page.style.display = 'none');
                 document.getElementById(targetPageId).style.display = 'block';
 
-                // Admin sayfasına geçince paneli render et
                 if (targetPageId === 'admin-page') {
                     renderAdminPanel();
                 }
