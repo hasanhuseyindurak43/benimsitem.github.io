@@ -3,19 +3,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DEĞİŞKENLER VE SEÇİCİLER ---
     const STORAGE_KEY = 'tgAppData';
+    const AD_COOLDOWN_MINUTES = 5; // Reklam arası bekleme süresi (dakika)
+    const REWARD_AMOUNT = 0.00000001; // Reklam ödülü
+
     let userData = {};
     let tg;
+    let countdownInterval; // Geri sayım için interval
 
     // Sayfa elemanları
     const homePage = document.getElementById('home-page');
     const walletPage = document.getElementById('wallet-page');
     const paymentPage = document.getElementById('payment-page');
 
-    const clickCircle = document.getElementById('click-circle');
-    const clickCountSpan = document.getElementById('click-count');
-    const totalClicksSpan = document.getElementById('total-clicks');
+    const adButton = document.getElementById('ad-button');
+    const adButtonTextSpan = document.getElementById('ad-button-text');
+    
     const totalAdsSpan = document.getElementById('total-ads');
     const userNameSpan = document.getElementById('user-name');
+    const usdtBalanceSpan = document.getElementById('usdt-balance'); // Yeni
 
     const walletForm = document.getElementById('wallet-form');
     const btcInput = document.getElementById('btc-address');
@@ -25,40 +30,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentTronAddressSpan = document.getElementById('payment-tron-address');
     const userBalanceSpan = document.getElementById('user-balance');
 
-    const adModal = new bootstrap.Modal(document.getElementById('adModal'));
     const menuLinks = document.querySelectorAll('.nav-link[data-page]');
 
     // --- TELEGRAM WEB APP BAŞLATMA ---
-    if (window.Telegram) {
+    if (window.Telegram && window.show_10301465) { // SDK'nın varlığını da kontrol et
         tg = window.Telegram.WebApp;
-        tg.ready(); // Uygulamanın hazır olduğunu Telegram'a bildir
-        tg.expand(); // Uygulamayı tam ekrana getir
+        tg.ready();
+        tg.expand();
 
         const user = tg.initDataUnsafe.user;
         if (user) {
             initializeUser(user);
             setupEventListeners();
+            // Geri sayımı başlat
+            updateAdButtonState(); 
+            countdownInterval = setInterval(updateAdButtonState, 1000);
         } else {
-            // Telegram dışında veya kullanıcı bilgisi alınamazsa
             document.body.innerHTML = '<div class="container text-center mt-5"><h1>Hata</h1><p>Bu uygulama sadece Telegram üzerinden çalışır.</p></div>';
         }
     } else {
-        document.body.innerHTML = '<div class="container text-center mt-5"><h1>Hata</h1><p>Telegram Web App SDK bulunamadı.</p></div>';
+        document.body.innerHTML = '<div class="container text-center mt-5"><h1>Hata</h1><p>Telegram Web App SDK veya Reklam SDK bulunamadı.</p></div>';
     }
 
     // --- TEMEL FONKSİYONLAR ---
 
-    /**
-     * Yeni bir kullanıcı için varsayılan veri yapısı oluşturur.
-     * @param {object} user - Telegram kullanıcı objesi
-     */
     function createNewUser(user) {
         return {
             id: user.id,
             name: user.first_name,
             username: user.username || 'N/A',
-            clickCount: 0,
-            adsWatched: 0,
+            usdt_balance: 0, // Yeni
+            totalAdsWatched: 0, // isim değişti
+            nextAdTimestamp: 0, // Yeni: Bir sonraki reklamın zamanı
             wallets: {
                 BTC: '',
                 ETH: '',
@@ -67,10 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    /**
-     * localStorage'dan tüm verileri yükler veya yeni bir veri seti oluşturur.
-     * @param {object} user - Telegram kullanıcı objesi
-     */
     function loadUserData(user) {
         const allData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
         if (!allData.users) {
@@ -85,9 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Kullanıcı verileri yüklendi:", userData);
     }
 
-    /**
-     * Mevcut kullanıcı verilerini localStorage'a kaydeder.
-     */
     function saveUserData() {
         const allData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
         allData.users[userData.id] = userData;
@@ -95,51 +91,69 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Kullanıcı verileri kaydedildi:", userData);
     }
 
-    /**
-     * Uygulamayı ilk başlatır, kullanıcı verilerini yükler ve arayüzü günceller.
-     * @param {object} user - Telegram kullanıcı objesi
-     */
     function initializeUser(user) {
         loadUserData(user);
         updateUI();
     }
 
-    /**
-     * Arayüzdeki (UI) tüm dinamik elemanları günceller.
-     */
     function updateUI() {
         userNameSpan.textContent = `${userData.name} (@${userData.username})`;
-        clickCountSpan.textContent = userData.clickCount;
-        totalClicksSpan.textContent = userData.clickCount;
-        totalAdsSpan.textContent = userData.adsWatched;
+        totalAdsSpan.textContent = userData.totalAdsWatched;
+        usdtBalanceSpan.textContent = userData.usdt_balance.toFixed(8); // 8 basamak göster
 
-        // Cüzdan sayfası inputlarını güncelle
         btcInput.value = userData.wallets.BTC;
         ethInput.value = userData.wallets.ETH;
         tronInput.value = userData.wallets.TRON;
 
-        // Ödeme sayfası bilgilerini güncelle
         paymentTronAddressSpan.textContent = userData.wallets.TRON || 'Kayıtlı değil';
-        const balance = (userData.adsWatched * 0.1).toFixed(2); // Her reklam için 0.1 USDT varsayımı
-        userBalanceSpan.textContent = `${balance} USDT`;
+        userBalanceSpan.textContent = `${userData.usdt_balance.toFixed(8)} USDT`;
     }
+    
+    // --- YENİ: REKLAM BUTONU DURUMUNU GÜNCELLEME FONKSİYONU ---
+    function updateAdButtonState() {
+        const now = Date.now();
+
+        if (now >= userData.nextAdTimestamp) {
+            // Reklam mevcut
+            adButton.classList.remove('disabled');
+            adButtonTextSpan.textContent = 'Reklam İzle';
+        } else {
+            // Reklam beklemede
+            adButton.classList.add('disabled');
+            const remainingTime = Math.floor((userData.nextAdTimestamp - now) / 1000);
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            adButtonTextSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }
+
 
     // --- OLAY DİNLEYİCİLERİ (EVENT LISTENERS) ---
 
     function setupEventListeners() {
-        // Tıklama Dairesi
-        clickCircle.addEventListener('click', () => {
-            userData.clickCount++;
-            clickCountSpan.textContent = userData.clickCount;
-            totalClicksSpan.textContent = userData.clickCount;
-
-            // Her 5 tıklamada bir reklam göster
-            if (userData.clickCount % 5 === 0) {
-                userData.adsWatched++;
-                totalAdsSpan.textContent = userData.adsWatched;
-                adModal.show();
+        // Reklam Butonu Tıklama
+        adButton.addEventListener('click', () => {
+            const now = Date.now();
+            // Buton aktifse ve SDK varsa
+            if (now >= userData.nextAdTimestamp && window.show_10301465) {
+                // Reklamı göster
+                show_10301465('pop').then(() => {
+                    // Reklam başarıyla izlendi, ödülü ver
+                    tg.showAlert('Tebrikler! 0.00000001 USDT bakiyenize eklendi!');
+                    
+                    userData.usdt_balance += REWARD_AMOUNT;
+                    userData.totalAdsWatched++;
+                    userData.nextAdTimestamp = now + (AD_COOLDOWN_MINUTES * 60 * 1000); // 5 dk sonrası için yeni zaman damgası
+                    
+                    saveUserData();
+                    updateUI();
+                    updateAdButtonState(); // Buton durumunu hemen güncelle
+                }).catch(e => {
+                    // Reklam gösterilemedi veya hata oluştu
+                    console.error("Reklam hatası:", e);
+                    tg.showAlert('Reklam yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+                });
             }
-            saveUserData();
         });
 
         // Alt Menü Navigasyonu
@@ -148,17 +162,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const targetPageId = link.dataset.page;
 
-                // Aktif link stilini değiştir
                 menuLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
 
-                // Sayfaları gizle/göster
                 document.querySelectorAll('.page-content').forEach(page => {
                     page.style.display = 'none';
                 });
                 document.getElementById(targetPageId).style.display = 'block';
 
-                // Ödeme veya Cüzdan sayfasına geçince arayüzü güncelle
                 if (targetPageId === 'payment-page' || targetPageId === 'wallet-page') {
                     updateUI();
                 }
@@ -172,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userData.wallets.ETH = ethInput.value;
             userData.wallets.TRON = tronInput.value;
             saveUserData();
-            alert('Cüzdan adresleriniz başarıyla kaydedildi!');
+            tg.showAlert('Cüzdan adresleriniz başarıyla kaydedildi!');
         });
     }
 });
