@@ -9,6 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Reklam SDK'sı -->
+    <script src='//libtl.com/sdk.js' data-zone='10301465' data-sdk='show_10301465'></script>
     <!-- Özel Stil Dosyası -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -26,11 +28,13 @@
         <div id="home-page" class="page-content text-center">
             <div class="info-box mt-4">
                 <p><strong>Kullanıcı:</strong> <span id="user-name">Yükleniyor...</span></p>
-                <p><strong>Toplam Tıklama:</strong> <span id="total-clicks">0</span></p>
                 <p><strong>İzlenen Reklam:</strong> <span id="total-ads">0</span></p>
+                <!-- YENİ: USDT Bakiye Göstergesi -->
+                <p><strong>USDT Bakiye:</strong> <span id="usdt-balance">0.00000000</span></p>
             </div>
-            <div class="click-circle" id="click-circle">
-                <span id="click-count">0</span>
+            <div class="click-circle" id="ad-button">
+                <!-- ID değişti: click-count -> ad-button-text -->
+                <span id="ad-button-text">Yükleniyor...</span>
             </div>
         </div>
 
@@ -63,8 +67,7 @@
                 <strong>Çekim Adresi (TRX):</strong> <span id="payment-tron-address">Kayıtlı değil</span>
             </div>
             <div class="alert alert-success">
-                <strong>Mevcut Bakiye:</strong> <span id="user-balance">0.00 USDT</span> <br>
-                <small>(Her 10 reklam için 1 USDT varsayılmıştır)</small>
+                <strong>Mevcut Bakiye:</strong> <span id="user-balance">0.00000000 USDT</span>
             </div>
             <button class="btn btn-success w-100">Çekim Talebi Oluştur</button>
         </div>
@@ -85,25 +88,6 @@
             </a>
         </div>
     </nav>
-
-    <!-- Reklam Popup Modal -->
-    <div class="modal fade" id="adModal" tabindex="-1" aria-labelledby="adModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="adModalLabel">Reklam İzleyin</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <!-- Reklam içeriği burada iframe ile gösterilecek -->
-                    <iframe src="ad.html" style="width: 100%; height: 300px; border: none;"></iframe>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Reklamı İzledim</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
