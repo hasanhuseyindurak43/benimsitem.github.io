@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const STORAGE_KEY = 'hesapData';
     const AD_COOLDOWN_MINUTES = 5;
     const CREDIT_TO_USDT_RATE = 0.00000001;
-    const MIN_REWARD_CREDITS = 1;
-    const MAX_REWARD_CREDITS = 3;
+    const MIN_REWARD_CREDITS = 0.00000001;
+    const MAX_REWARD_CREDITS = 0.0000001;
     const ADMIN_USERNAME = 'Hasan199243'; // Admin kullanıcısı
 
     // --- YENİ: SADECE MONETAG REKLAM ŞİRKETİ ---
