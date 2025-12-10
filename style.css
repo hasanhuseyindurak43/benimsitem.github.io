@@ -1,0 +1,324 @@
+/* style.css - GÜNCELLENMİŞ */
+/* --- Genel ve Tema Ayarları --- */
+body {
+    padding-top: 70px;
+    padding-bottom: 70px;
+    background-color: #f8f9fa;
+    color: #212529;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-image: url('d.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* --- Ana Sayfa Düzeni --- */
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: calc(100vh - 140px);
+    padding: 15px 0;
+}
+
+.page-content {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+/* --- YENİ: Form Sayfaları İçin Blur Arka Plan --- */
+.page-content:not(#home-page) {
+    background: rgba(255, 255, 255, 0.85); /* Yarı saydam beyaz arka plan */
+    backdrop-filter: blur(10px); /* Blur efekti */
+    -webkit-backdrop-filter: blur(10px); /* Safari için */
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* --- YENİ: Form Elementleri İçin Net Görünüm --- */
+.form-control, .form-label, .alert, .table, h2, h4, p {
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8); /* Metin okunabilirliği için */
+}
+
+/* Özellikle form elemanları için net görünüm */
+.form-control {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* Tablo için net görünüm */
+.table {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* Alert'ler için net görünüm */
+.alert {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* Nav tab'ler için */
+.nav-tabs {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 8px 8px 0 0;
+    padding: 5px 5px 0 5px;
+}
+
+.tab-content {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 0 0 8px 8px;
+    padding: 15px;
+}
+
+/* Admin card'lar için net görünüm */
+.admin-request-card, .admin-banned-user-card {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* --- Ana Sayfa Bileşenleri --- */
+.info-box {
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    color: #212529;
+    text-align: left;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* "Reklam İzle" Butonu (Tıklama Dairesi) */
+.click-circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 5px 5px 15px rgba(40, 167, 69, 0.3), -5px -5px 15px rgba(255, 255, 255, 0.7);
+    transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+    user-select: none;
+    margin: 40px auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.click-circle::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('r.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(3px);
+    z-index: -1;
+}
+
+.click-circle:active {
+    transform: scale(0.95);
+    box-shadow: inset 5px 5px 10px rgba(40, 167, 69, 0.3), inset -5px -5px 10px rgba(255, 255, 255, 0.7);
+}
+
+.click-circle.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background: rgba(108, 117, 125, 0.7);
+}
+
+#ad-button-text {
+    font-size: 20pt;
+    font-weight: bold;
+    color: #ffffff;
+    line-height: 1;
+    text-align: center;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+/* Monetag reklamı için konteyner */
+#d34bcbcf6512122c89e0c7654c0bda0619117b6e {
+    margin-top: 20px;
+    text-align: center;
+    min-height: 50px;
+}
+
+/* --- Alt Navigasyon Menüsü --- */
+.navbar {
+    background-color: #28a745 !important;
+}
+
+.navbar .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    color: rgba(255, 255, 255, 0.75);
+    transition: color 0.2s;
+}
+
+.navbar .nav-link i {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.navbar .nav-link.active {
+    color: #ffffff !important;
+}
+
+/* --- Admin Paneli Stilleri --- */
+.admin-request-card {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(233, 236, 239, 0.7);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    color: #212529;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.admin-request-card .card-title {
+    color: #28a745;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.admin-banned-user-card {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(233, 236, 239, 0.7);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    color: #212529;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-banned-user-card .card-title {
+    color: #dc3545;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+
+/* Admin sekmeleri için stiller */
+.nav-tabs .nav-link {
+    color: #28a745;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: #28a745;
+    font-weight: bold;
+    border-bottom: 2px solid #28a745;
+    background-color: transparent;
+}
+
+/* --- Form ve Buton İyileştirmeleri --- */
+.form-control {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-color: #ced4da;
+    color: #212529;
+}
+
+.form-control:focus {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    color: #212529;
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+}
+
+.btn-primary {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-primary:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn {
+    font-weight: 500;
+    border-radius: 5px;
+}
+
+.alert {
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.alert-success {
+    background-color: rgba(212, 237, 218, 0.95) !important;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: rgba(248, 215, 218, 0.95) !important;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.alert-warning {
+    background-color: rgba(255, 243, 205, 0.95) !important;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+.alert-info {
+    background-color: rgba(209, 236, 241, 0.95) !important;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+/* --- YENİ: Ekstra netlik için metinler --- */
+h1, h2, h3, h4, h5, h6, 
+p, label, th, td, 
+.nav-link, .card-title {
+    font-weight: 600; /* Daha kalın font ağırlığı */
+}
