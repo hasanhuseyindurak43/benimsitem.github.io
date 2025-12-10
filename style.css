@@ -3,9 +3,15 @@
 body {
     padding-top: 70px; /* Sabit üst başlık için boşluk */
     padding-bottom: 70px; /* Sabit alt navigasyon için boşluk */
-    background-color: #f8f9fa; /* Ana arka plan rengi (beyaz) */
+    background-color: #f8f9fa; /* Ana arka plan rengi (resim yüklenene kadar) */
     color: #212529; /* Ana metin rengi */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* --- YENİ EKLENEN: Sayfa arka planı --- */
+    background-image: url('d.jpg'); /* Arka plan resmi */
+    background-size: cover; /* Resmin tüm ekranı kaplamasını sağlar */
+    background-position: center; /* Resmin ortalanmasını sağlar */
+    background-attachment: fixed; /* Sayfa kaydırılırken arka planın sabit kalmasını sağlar */
 }
 
 /* --- Ana Sayfa Düzeni --- */
@@ -38,7 +44,8 @@ body {
 .click-circle {
     width: 200px;
     height: 200px;
-    background: linear-gradient(145deg, #28a745, #20c997); /* Yeşil gradient */
+    /* Arka plan rengini kaldırdık çünkü resim kullanacağız */
+    /* background: linear-gradient(145deg, #28a745, #20c997); */
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -48,11 +55,11 @@ body {
     transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
     user-select: none; /* Metin seçimini engeller */
     margin: 40px auto;
-    position: relative;
-    overflow: hidden;
+    position: relative; /* ::before pseudo-element'i için gerekli */
+    overflow: hidden; /* Arka plan resminin dairenin dışına taşmasını engeller */
 }
 
-/* Reklam butonu arka plan resmi */
+/* --- YENİ EKLENEN: Reklam butonu arka plan resmi --- */
 .click-circle::before {
     content: "";
     position: absolute;
@@ -60,12 +67,11 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('r.jpg');
-    background-size: cover;
-    background-position: center;
-    filter: blur(3px); /* Bulanıklık efekti */
-    opacity: 0.7; /* Saydamlık */
-    z-index: -1;
+    background-image: url('r.jpg'); /* Yuvarlak butonun arka plan resmi */
+    background-size: cover; /* Resmin daireyi tamamen kaplaması için */
+    background-position: center; /* Resmin ortalanması için */
+    filter: blur(3px); /* Resmi bulanıklaştırır */
+    z-index: -1; /* Resmin metinlerin arkasında kalmasını sağlar */
 }
 
 /* Butona basıldığındaki efekt */
@@ -78,6 +84,7 @@ body {
 .click-circle.disabled {
     cursor: not-allowed;
     opacity: 0.6;
+    /* Devre dışıyken arka plan resmi yerine gradyan kullanalım */
     background: linear-gradient(145deg, #6c757d, #adb5bd); /* Gri renk */
 }
 
@@ -88,8 +95,8 @@ body {
     color: #ffffff; /* Beyaz metin */
     line-height: 1;
     text-align: center;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Metin gölgesi */
-    z-index: 1;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Metin gölgesi, okunabilirliği artırır */
+    z-index: 1; /* Metnin arka planın üstünde olması için */
 }
 
 /* Monetag reklamı için konteyner */
@@ -100,7 +107,6 @@ body {
 }
 
 /* --- Alt Navigasyon Menüsü --- */
-/* DEĞİŞİKLİK: Arka plan rengi yeşil olarak güncellendi */
 .navbar {
     background-color: #28a745 !important; /* Yeşil arka plan */
 }
@@ -162,16 +168,15 @@ body {
 }
 
 /* Admin sekmeleri için stiller */
-/* DEĞİŞİKLİK: Sekme renkleri yeşil olarak güncellendi */
 .nav-tabs .nav-link {
-    color: #28a745; /* Yeşil metin rengi */
+    color: #28a745;
     border-bottom: 2px solid transparent;
 }
 
 .nav-tabs .nav-link.active {
-    color: #28a745; /* Yeşil metin rengi */
+    color: #28a745;
     font-weight: bold;
-    border-bottom: 2px solid #28a745; /* Yeşil alt çizgi */
+    border-bottom: 2px solid #28a745;
     background-color: transparent;
 }
 
@@ -182,11 +187,10 @@ body {
     color: #212529;
 }
 
-/* DEĞİŞİKLİK: Focus rengi yeşil olarak güncellendi */
 .form-control:focus {
     background-color: #ffffff;
-    border-color: #28a745; /* Yeşil kenarlık */
-    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25); /* Yeşil gölge */
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
     color: #212529;
 }
 
@@ -194,7 +198,6 @@ body {
     color: #6c757d;
 }
 
-/* DEĞİŞİKLİK: btn-primary stilleri btn-success ile aynı yapıldı */
 .btn-primary {
     background-color: #28a745;
     border-color: #28a745;
